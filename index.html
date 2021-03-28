@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title><span class="material-icons">face</span> Mocha</title>
+    <link rel="stylesheet" href="/ssr-bach/mini-dark.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      function showerror(e) {
+        document.write(e.message);
+      }
+      var trackList = [];
+    </script>
+  </head>
+  <body>
+    <header class="sticky">
+      <!-- This might seem a bight hacky but it works great -->
+      <div class="col-sm col-lg-8 col-lg-offset-4">
+        <button class="pcm" srcc="/node">Play</button>
+        <select id="sfselect">
+          <options>selectSF</options>
+        </select>
+        <select id="sfselect">
+          <options>selectMidi</options>
+        </select>
+      </div>
+    </header>
+    <div class="container">
+      <div id="root"></div>
+    </div>
+    <script type="module" src="build/bundle.js"></script>
+
+    <script>
+      let ctx, gainNode;
+      async function playSample(url, cb) {
+        try {
+          if (!ctx) {
+            ctx = new AudioContext({
+              sampleRate: 48000,
+              latencyHint: "playback",
+            });
+            gainNode = new GainNode(ctx, { gain: 1 });
+
+            gainNode.connect(ctx.destination);
+          }
+          nchan = 2;
+          const dv = await fetch(url)
+            .then((resp) => {
+              cb("resp got");
+              return resp.arrayBuffer();
+            })
+            .then((ab) => new DataView(ab))
+            .catch((e) => cb("error " + e.message));
+
+          if (!dv) return;
+          const audb = ctx.createBuffer(nchan, dv.buffer.byteLength / 8, 48000);
+          const buffers = [audb.getChannelData(0), audb.getChannelData(1)];
+
+          for (let i = 0; i < audb.length; i++) {
+            for (let ch = 0; ch < nchan; ch++) {
+              buffers[ch][i] = dv.readInt16(i * 2 * nchan + 2 * ch, true);
+            }
+          }
+          let s = 0;
+          const abs = new AudioBufferSourceNode(ctx, { buffer: audb });
+          abs.connect(gainNode);
+          abs.start();
+        } catch (e) {
+          console.log("<font color='red'>" + e.message + "</font>");
+          throw e;
+        }
+      }
+    </script>
+    <script type="module" src="./dist/index.js"></script>
+    <footer>
+      <div class="col-sm col-lg-10 col-lg-offset-1">
+        <p>
+          Copyright &copy; Your Website 2017 | Built using
+          <a href="https://chalarangelo.github.io/mini.css/">mini.css</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
