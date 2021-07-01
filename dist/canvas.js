@@ -11,11 +11,11 @@ export const BoxCanvas = (containerElement = document.body) => {
     const canvas = getInstance();
     const ctgx = canvas.getContext("2d");
     canvas.style.width = 1024;
-    canvas.style.height = 1;
+    canvas.style.height = 540;
     canvas.style.position = "absolute";
     canvas.style.top = "50%";
     canvas.style.left = "50%";
-    canvas.style.transform = "translate(-150%,-50%)";
+    canvas.style.transform = "translate(-50%,-50%)";
     canvas.setAttribute("width", 1024);
     canvas.setAttribute("height", 1024);
     const cells = 16 * 88;

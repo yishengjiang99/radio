@@ -27,65 +27,72 @@ fetchXML(midiurl, (list) => {
     );
     midlist.push(elem.textContent);
     if (idx == 0) {
-      loadMidi(midlist[0]);
+      // loadMidi(midlist[0]);
     }
   });
 });
-midselect.onchange = () => {
-  const {header,tracks} = loadMidi(midselect.value);
-  main.append(tracks.map((t,idx)=>
-    t.events.slice(0,4).map(({time, type })=>`${time}:${type}`).join("\n")
-  ).map(tinfo=>`<div>${tinfo}</div>`).join(""));
-}
+midselect.onchange = async () => {
+  try{
+    const { header, tracks } = await loadMidi(midselect.value);
+    document.body.append(
+    JSON.stringify(tracks)
+    );
+  }catch(e){
+    console.trace()
+    alert(e.message)
+  }
+};
 async function loadMidi(url) {
   const canvas = BoxCanvas();
   const ab = await fetchAwaitBuffer(url);
   const midi_chan_vol_cc = 7;
   const midi_mast_vol_cc = 11;
-  const {header, tracks} = readMidi(new Uint8Array(ab), (cmd, obj) => {
-   stdout(cmd + JSON.stringify(obj));
-   switch (cmd) {
-     case "noteOn":
-             //  rend_ctx && rend_ctx.keyOn(obj.note, obj.vel, obj.channel);
-       if(obj.vel==0){
+  const rrr  = readMidi(new Uint8Array(ab), (cmd, obj) => {
+    stdout(cmd + JSON.stringify(obj));
+    switch (cmd) {
+      case "noteOn":
+        //  rend_ctx && rend_ctx.keyOn(obj.note, obj.vel, obj.channel);
+        if (obj.vel == 0) {
+          requestAnimationFrame(() => {
+            canvas.clearBox(obj.note, obj.channel);
+          });
+        } else {
+          requestAnimationFrame(() => {
+            canvas.drawBox(obj.note, obj.channel);
+          });
+        }
+
+        break;
+      case "noteOff":
+        //rend_ctx && rend_ctx.keyOff(obj.channel);
         requestAnimationFrame(() => {
           canvas.clearBox(obj.note, obj.channel);
         });
-
-       }else{
-        requestAnimationFrame(() => {
-          canvas.drawBox(obj.note, obj.channel);
-        });
-       }
-      
-
-       break;
-     case "noteOff":
-       //rend_ctx && rend_ctx.keyOff(obj.channel);
-       requestAnimationFrame(() => {
-         canvas.clearBox(obj.note, obj.channel);
-       });
-       break;
-     case "Program":
-          // rend_ctx.programs[obj.channel].presetId = obj.program;
-       break;
-     case "channelMode":
-       switch (obj.cc) {
-         case midi_chan_vol_cc:
-        //  rend_ctx.chanVols[obj.channel] = obj.val;
-           break;
-         case midi_mast_vol_cc:
-          // rend_ctx.masterVol = obj.val; //[obj.channel] = obj.val;
-           break;
-         default:
-           console.log(obj.cc, obj.val);
-       }
-       break;
-     default:
-       console.log(cmd, obj);
-       break;
-   }
- });
+        break;
+      case "Program":
+        // rend_ctx.programs[obj.channel].presetId = obj.program;
+        break;
+      case "channelMode":
+        switch (obj.cc) {
+          case midi_chan_vol_cc:
+            //  rend_ctx.chanVols[obj.channel] = obj.val;
+            break;
+          case midi_mast_vol_cc:
+            // rend_ctx.masterVol = obj.val; //[obj.channel] = obj.val;
+            break;
+          default:
+            console.log(obj.cc, obj.val);
+        }
+        break;
+      default:
+        console.log(cmd, obj);
+        break;
+    }
+  });
+  playPauseTimer((t)=>{
+    rrr.tick();
+    console.log(rrr.offset)
+  });  return rrr;
 }
 playPauseTimer((t)=>{
   nowplaying.tracks.map(t=>{
