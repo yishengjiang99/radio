@@ -1,14 +1,12 @@
-export function fetchXML(url, target) {
+export function fetchXML(url, cb) {
   const xhr = new XMLHttpRequest();
   xhr.onload = function () {
-    xhr.responseXML &&
-      xhr.responseXML.documentElement
-        .querySelectorAll("Url")
-        .forEach((elem) =>
-          target.appendChild(
-            new Option(elem.textContent.split("/").pop(), elem.textContent)
-          )
-        );
+    if(!xhr.responseXML) return;
+    if(!xhr.responseXML.documentElement) return;
+    const iter= xhr.responseXML.documentElement
+        .querySelectorAll("Url");
+    cb(iter);
+    
   };
   xhr.open("GET", url);
   xhr.responseType = "document";

@@ -46,7 +46,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"fetchXML\": () => (/* binding */ fetchXML),\n/* harmony export */   \"fetchAwaitBuffer\": () => (/* binding */ fetchAwaitBuffer),\n/* harmony export */   \"fetchWithRange\": () => (/* binding */ fetchWithRange)\n/* harmony export */ });\nfunction fetchXML(url, target) {\n  const xhr = new XMLHttpRequest();\n\n  xhr.onload = function () {\n    xhr.responseXML && xhr.responseXML.documentElement.querySelectorAll(\"Url\").forEach(elem => target.appendChild(new Option(elem.textContent.split(\"/\").pop(), elem.textContent)));\n  };\n\n  xhr.open(\"GET\", url);\n  xhr.responseType = \"document\";\n  xhr.send();\n}\nasync function fetchAwaitBuffer(url) {\n  return await (await fetch(url)).arrayBuffer();\n}\nconst fetchWithRange = (url, range) => {\n  return fetch(url, {\n    headers: {\n      Range: \"bytes=\" + range\n    }\n  });\n};\n\n//# sourceURL=webpack://radio/./dist/fetch-utils.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"fetchXML\": () => (/* binding */ fetchXML),\n/* harmony export */   \"fetchAwaitBuffer\": () => (/* binding */ fetchAwaitBuffer),\n/* harmony export */   \"fetchWithRange\": () => (/* binding */ fetchWithRange)\n/* harmony export */ });\nfunction fetchXML(url, cb) {\n  const xhr = new XMLHttpRequest();\n\n  xhr.onload = function () {\n    if (!xhr.responseXML) return;\n    if (!xhr.responseXML.documentElement) return;\n    const iter = xhr.responseXML.documentElement.querySelectorAll(\"Url\");\n    cb(iter);\n  };\n\n  xhr.open(\"GET\", url);\n  xhr.responseType = \"document\";\n  xhr.send();\n}\nasync function fetchAwaitBuffer(url) {\n  return await (await fetch(url)).arrayBuffer();\n}\nconst fetchWithRange = (url, range) => {\n  return fetch(url, {\n    headers: {\n      Range: \"bytes=\" + range\n    }\n  });\n};\n\n//# sourceURL=webpack://radio/./dist/fetch-utils.js?");
 
 /***/ }),
 
@@ -253,7 +253,7 @@ eval("\n\nif (false) {} else {\n  module.exports = __webpack_require__(/*! ./cjs
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("47bfd1691c9731afcb52")
+/******/ 		__webpack_require__.h = () => ("c887f57d7415e7b3d0e5")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
