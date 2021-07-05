@@ -2,45 +2,83 @@ import { fetchSoundFont } from "./readsf.js";
 import { readMidi } from "./readmidi.js";
 import { fetchAwaitBuffer, fetchXML } from "./fetch-utils.js";
 import { BoxCanvas } from "./canvas.js";
-import { RenderCtx } from "./render-ctx.js";
+import {playPauseTimer}from'./runclock.js';//.js
+import {logdiv} from './mkdiv.js';
+
 // @ts-ignore
-const containerbase = "https://dsp.grepawk.com/radio";
+const containerbase = "https://grep32bit.blob.core.windows.net";
 const [sfselect, midselect] = document.body.querySelectorAll("select");
 
 const sf2url = containerbase + "/sf2?resttype=container&comp=list";
-const midiurl = containerbase + "/midi.xml";
-fetchXML(midiurl, midselect);
-midselect.onchange = () => loadMidi(midselect.value);
+const midiurl =
+  "https://grep32bit.blob.core.windows.net/midi?resttype=container&comp=list";
+let midlist = [];
 
+//state vars;
+let nowplaying = {
+  tracks: [],
+  header:null
+}
+
+fetchXML(midiurl, (list) => {
+  list.forEach((elem, idx) => {
+    midselect.appendChild(
+      new Option(elem.textContent.split("/").pop(), elem.textContent)
+    );
+    midlist.push(elem.textContent);
+    if (idx == 0) {
+      // loadMidi(midlist[0]);
+    }
+  });
+});
+midselect.onchange = async () => {
+  try{
+    const { header, tracks } = await loadMidi(midselect.value);
+    document.body.append(
+    JSON.stringify(tracks)
+    );
+  }catch(e){
+    console.trace()
+    alert(e.message)
+  }
+};
 async function loadMidi(url) {
   const canvas = BoxCanvas();
   const ab = await fetchAwaitBuffer(url);
   const midi_chan_vol_cc = 7;
   const midi_mast_vol_cc = 11;
-  readMidi(new Uint8Array(ab), (cmd, obj) => {
+  const rrr  = readMidi(new Uint8Array(ab), (cmd, obj) => {
+    stdout(cmd + JSON.stringify(obj));
     switch (cmd) {
       case "noteOn":
-        rend_ctx && rend_ctx.keyOn(obj.note, obj.vel, obj.channel);
-        requestAnimationFrame(() => {
-          canvas.drawBox(obj.note, obj.channel);
-        });
+        //  rend_ctx && rend_ctx.keyOn(obj.note, obj.vel, obj.channel);
+        if (obj.vel == 0) {
+          requestAnimationFrame(() => {
+            canvas.clearBox(obj.note, obj.channel);
+          });
+        } else {
+          requestAnimationFrame(() => {
+            canvas.drawBox(obj.note, obj.channel);
+          });
+        }
+
         break;
       case "noteOff":
-        rend_ctx && rend_ctx.keyOff(obj.channel);
+        //rend_ctx && rend_ctx.keyOff(obj.channel);
         requestAnimationFrame(() => {
           canvas.clearBox(obj.note, obj.channel);
         });
         break;
       case "Program":
-        rend_ctx.programs[obj.channel].presetId = obj.program;
+        // rend_ctx.programs[obj.channel].presetId = obj.program;
         break;
       case "channelMode":
         switch (obj.cc) {
           case midi_chan_vol_cc:
-            rend_ctx.chanVols[obj.channel] = obj.val;
+            //  rend_ctx.chanVols[obj.channel] = obj.val;
             break;
           case midi_mast_vol_cc:
-            rend_ctx.masterVol = obj.val; //[obj.channel] = obj.val;
+            // rend_ctx.masterVol = obj.val; //[obj.channel] = obj.val;
             break;
           default:
             console.log(obj.cc, obj.val);
@@ -51,4 +89,24 @@ async function loadMidi(url) {
         break;
     }
   });
+  playPauseTimer((t)=>{
+    rrr.tick();
+    console.log(rrr.offset)
+  });  return rrr;
 }
+playPauseTimer((t)=>{
+  nowplaying.tracks.map(t=>{
+    if(t.events[0] && t.events[0].time<t+.20){
+      console.log('fire off', t.events.shift()) ;
+    }
+  });
+});
+
+const {
+  stderr,
+  stdout,
+  infoPanel,
+  errPanel,
+}=logdiv();
+document.body.append(infoPanel);
+document.body.append(errPanel);

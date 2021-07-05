@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title><span class="material-icons">face</span> Mocha</title>
-    <link rel="stylesheet" href="/ssr-bach/mini-dark.min.css" />
+    <title> Mocha</title>
+    <link rel="stylesheet" href="mini-dark.min.css" />
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" crossorigin/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       function showerror(e) {
@@ -25,10 +26,19 @@
         </select>
       </div>
     </header>
-    <div class="container">
+    <main class="container">
       <div id="root"></div>
-    </div>
-    <script type="module" src="build/bundle.js"></script>
+    </main>
+    <pre id='debug'></pre>
+    <footer>
+      <div><span id=time>0.0</span></div>
+      <div>
+        <button>start</button>		
+        <button>pause</button>
+        <button>resume</button>
+        <button>reset</button>
+      </div>
+    </footer>
 
     <script>
       let ctx, gainNode;
@@ -70,15 +80,9 @@
           throw e;
         }
       }
-    </script>
+      
+   </script>
     <script type="module" src="./dist/index.js"></script>
-    <footer>
-      <div class="col-sm col-lg-10 col-lg-offset-1">
-        <p>
-          Copyright &copy; Your Website 2017 | Built using
-          <a href="https://chalarangelo.github.io/mini.css/">mini.css</a>
-        </p>
-      </div>
-    </footer>
+
   </body>
 </html>

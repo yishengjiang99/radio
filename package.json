@@ -4,7 +4,7 @@
   "description": "",
   "main": "make.js",
   "scripts": {
-    "start": "webpack serve",
+    "start": "webpack-dev-server serve",
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/yishengjiang99/radio#readme",
   "dependencies": {
-    "midiread": "^1.0.1",
+    "midiread": "file:../midiread",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
@@ -32,7 +32,7 @@
     "mocha-loader": "^5.1.5",
     "ts-loader": "^8.0.18",
     "webpack": "^5.28.0",
-    "webpack-cli": "^4.6.0",
+    "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2"
   }
 }

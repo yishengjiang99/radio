@@ -1,16 +1,17 @@
 export const BoxCanvas = (containerElement = document.body) => {
     function getInstance() {
-        const existing = document.querySelector("canvas#BoxCanvas");
+        const existing = document.querySelector("canvas");
         if (existing)
             return existing;
-        const can = document.createElement("canvas#BoxCanvas");
+        const can = document.createElement("canvas");
+        can.id = "BoxCanvas";
         containerElement.append(can);
         return can;
     }
     const canvas = getInstance();
     const ctgx = canvas.getContext("2d");
     canvas.style.width = 1024;
-    canvas.style.height = 1024;
+    canvas.style.height = 540;
     canvas.style.position = "absolute";
     canvas.style.top = "50%";
     canvas.style.left = "50%";
@@ -28,14 +29,14 @@ export const BoxCanvas = (containerElement = document.body) => {
         drawBox: (x, y) => {
             ctgx.beginPath();
             ctgx.fillStyle = "red";
-            ctgx.rect(obj.note * gridw, obj.channel * gridh, gridw, gridh);
+            ctgx.rect(x * gridw, y * gridh, gridw, gridh);
             ctgx.stroke();
             ctgx.fill();
         },
         clearBox: (x, y) => {
-            ctgx.clearRect(obj.note * gridw, obj.channel * gridh, gridw, gridh);
+            ctgx.rect(x * gridw, y * gridh, gridw, gridh);
             ctgx.fillStyle = "black";
-            ctgx.rect(obj.note * gridw, obj.channel * gridh, gridw, gridh);
+            ctgx.rect(x * gridw, y * gridh, gridw, gridh);
             ctgx.stroke();
             ctgx.fill();
         },
